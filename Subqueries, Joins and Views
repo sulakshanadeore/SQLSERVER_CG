@@ -1,0 +1,289 @@
+use northwind
+go
+
+select SupplierID,ProductName from Products
+order by SupplierID desc, ProductName desc
+
+
+select CategoryID,supplierid from Products
+order by CategoryID desc, supplierid
+
+
+
+sp_help Products
+
+
+
+
+select productname,unitprice from  Products
+order by unitprice desc, ProductName
+
+
+create table sortDemo
+(prodid int primary key,
+prodname varchar(10));
+
+
+insert into sortDemo values(1,'Tea'),(2,'TT'),(3,'Bread'),(4,'Butter')
+
+select * from sortDemo
+order by prodname
+
+3	Bread
+4	Butter
+1	Tea
+2	TT
+
+
+
+
+select * from sortDemo
+order by prodid,prodname
+
+1	Tea
+2	TT
+3	Bread
+4	Butter
+
+select * from sortDemo
+1	Tea
+2	TT
+3	Bread
+4	Butter
+
+select * from sortDemo
+order by prodid desc,prodname desc
+
+4	Butter
+3	Bread
+2	TT
+1	Tea
+
+select orderdate from orders
+where orderid in (10248,10249,10250)
+
+select orderdate,DATEADD(MM,1,orderdate) from orders
+
+select orderdate,datediff(YY,getdate(),orderdate) from orders
+
+select orderdate,DATENAME(Month,orderdate), DATENAME(day,orderdate),DATENAME(WEEKDAY,orderdate) from orders
+
+select ISDATE('2024/17/12')--invalid date--false--0
+select isdate(getdate())--valid date--true-1
+select ISDATE('2024/12/17')--valid date
+
+select SYSDATETIME()
+select year(orderdate), month(orderdate) from orders
+
+select region,isnull(region,'not available') from employees
+
+---Joins----When u want data from one or more tables/combining rows for creating reports etc we use joins which are based on a condition on  a related column/s.
+
+	---Types of joins
+	--1) inner join: it will return only matching row values  from the tables that are joined using a join condition, inner join with on
+	--2) outer joins--left outer join, right outer join and full outer join---when u want to forcefully select the data from the tables, which is not present in the other table
+	--3) cross/cartesian join---return the product(all combination and permutation) of two tables
+	--4) self join----joins the table to itself, two columns to be matched are in a single table.`
+
+	select * from customers--Custid--pk
+
+	--1 c--M o
+	--include the key attribute(pk) of one into many. when done its called a fk of the many table
+
+	select * from orders----custid--fk
+	order by CustomerID
+	-------------------------------------------------------
+	-- Cartisian Join/Cross Joins :
+	--Hotel booking----1 room --30/31 days
+				---	2 rooms----30/31 days
+-----1 flight----- 2 times
+      ---2 flights-----4 times
+
+
+	  --1 batches---2 trainers=2 schedules
+	  ---2 batches----2 trainer =4  schedules
+	  ----3 batches----2 trainer=6 schedules
+	select * from Employees 
+	select * from products
+	--if  each employee brings 1 order for each product(ie 77 products) only 1 qty per  only product --- 1 emp----77 orders
+
+	select 9 * 77
+
+	select * from Employees cross join Products
+
+	
+	-----------------------------------------
+	---self join: only single table exists and the data is to found in it
+
+	select EmployeeID,FirstName,LastName,ReportsTo from employees
+
+	select e.EmployeeID,e.FirstName,e.LastName,e.ReportsTo  as 'EmpMgr', mgr.FirstName,mgr.LastName
+	from employees e, Employees mgr
+	where e.ReportsTo=mgr.EmployeeID
+
+	---------------------------------------------
+	Outer Joins
+	1) Left
+	2) Right 
+	3) Full
+
+	select distinct customerid from orders =90
+	select customerid  from Customers=92
+
+	select Customers.customerid,customers.CompanyName,Customers.ContactName,OrderID 
+	from Customers left outer join orders 
+	on Customers.CustomerID=Orders.CustomerID
+	order by Orders.OrderID 
+
+	select Customers.customerid,customers.CompanyName,Customers.ContactName,OrderID from 
+	Orders right outer join Customers 
+	on Customers.CustomerID=Orders.CustomerID
+	order by Orders.OrderID 
+
+
+
+
+	LHS						RHS
+	---customers who have placed orders
+	select Customers.customerid,customers.CompanyName,Customers.ContactName,OrderID from 
+	Customers right outer join orders 
+	on Customers.CustomerID=Orders.CustomerID
+
+
+	select Customers.customerid,customers.CompanyName,Customers.ContactName,OrderID from 
+	Orders left outer join Customers 
+	on Customers.CustomerID=Orders.CustomerID
+
+	select Customers.customerid,customers.CompanyName,Customers.ContactName,OrderID from 
+	Customers full outer join orders 
+	on Customers.CustomerID=Orders.CustomerID
+	order by Orders.OrderID
+	---------------------------------------
+	SET Operators: combining rows from tables
+	1) union---- no duplicates
+	2) union all----duplicates are there
+	3)intersect -----common
+	4) except---there in one table, but not in the other table
+
+create view vw_customerOrdersDetails
+	as
+(select o.orderid,orderdate, c.customerid,CompanyName,Quantity,UnitPrice,Discount,ShipVia,ShipName,ShippedDate  from Customers c inner join Orders o
+on o.CustomerID=c.CustomerID inner join [Order Details] od  on o.OrderID=od.OrderID)
+
+select * from vw_customerOrdersDetails
+
+
+--Views--- 1) Simple -- no join, no subquery, no aggreagate function, no group by queries  then its a Simple view.
+	---They are  updateable views, You can do all DML operations on the view, as like you do on tables
+
+---2) complex----join,subquery, aggreagate function, group by queries  then its a complex view.
+		--They are not directly update-able, ie you cannot do any DML using views.
+
+===========================================================================================================
+
+
+SubQueries : Query inside query
+Output of one query is passed as input to the other query.
+Also called Nested Queries.
+1) Main (Subquery)
+2) Main (SubMain(Subquery))
+
+
+1) single row subquery: subquery returns single row, Operators are = and like
+2) multiple row subquery: subquery returns multiple rows,  not in and in
+3) Corelated subquery:references columns from the outer(main) query
+4)Uncorelated subquery:Does not references columns from the outer(main) query
+
+select * from customers
+
+----Find the customers who are in the same city 'Around the Horn'
+select city from customers
+where companyname like 'Around the Horn'
+
+select * from customers
+where city like (select city from customers
+where companyname like 'Around the Horn') 
+
+---find the products having the same price as 'Chai'
+select unitprice from products
+where productname like 'Chai'
+
+select * from products
+where unitprice =(select unitprice from products
+where productname like 'Chai')
+
+
+select * from products
+where unitprice > (select unitprice from products
+where productname like 'Chai')
+
+--Find the products whose unitprice is in the range of 18-30 and then take the highest value and find products greater than that value
+select productname from products
+where unitprice between 18 and 30
+--- greater than all and greater than any
+select * from products
+where unitprice > all(select unitprice from products
+where unitprice between 18 and 30)
+order by unitprice
+
+select * from products
+where unitprice > any(select unitprice from products
+where unitprice between 18 and 30)
+order by unitprice
+
+----Multiple row
+select * from orders
+
+select * from employees
+
+select city from employees 
+where firstname in ('Laura','Steven')
+
+---find customers who are from the same city as Laura and Steven(employees)
+select * from customers 
+where city in (select city from employees 
+where firstname in ('Laura','Steven'))
+
+---find customers who are  not from the same city as Laura and Steven(employees)
+select * from customers 
+where city  not in (select city from employees 
+where firstname in ('Laura','Steven'))
+
+create table empForCorelated
+(empno int primary key,
+ename varchar(20),
+sal int,
+deptno int )
+
+
+insert into empForCorelated values(6,'Kaushal',5000,20),
+(8,'Amit',2000,20),
+(9,'Sunita',3000,10),
+(10,'Ankita',1000,30),
+(11,'Archana',3000,20)
+
+
+select *  from empForCorelated
+1	Sumit	10000	20
+2	Amit	20000	20
+3	Sunita	30000	10
+4	Ankita	10000	30
+5	Archana	30000	20
+6	Kaushal	5000	20
+8	Amit	2000	20
+9	Sunita	3000	10
+10	Ankita	1000	30
+11	Archana	3000	20
+
+
+select deptno,avg(sal) from empForCorelated
+group by deptno
+10	16500
+20	11666
+30	5500
+
+
+---Find the employees who have salaries > average salaries in their own dept
+select * from empForCorelated e
+where sal > ( select avg(sal) from empForCorelated d
+where e.deptno=d.deptno)
