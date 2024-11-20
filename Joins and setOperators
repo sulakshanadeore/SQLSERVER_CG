@@ -1,0 +1,207 @@
+use SchoolG20
+go
+
+sp_help Students
+
+alter table Students
+add Birthdate date
+
+select * from Students
+
+update Students
+set Birthdate='2020/02/12'
+where rollno in(1,2)
+
+update Students
+set Birthdate=DATEADD(yyyy,1,'2020/02/12')
+where rollno in (3,4,5)
+
+
+update Students
+set Birthdate=DATEADD(yyyy,-1,'2020/02/12')
+where rollno in (3,4,5)
+
+sp_help Faculty
+
+
+
+
+
+select GETDATE()
+
+select getdate(),DATEADD(yyyy,1,getdate())
+
+alter table Students
+alter column studname varchar(6)
+
+
+alter table Students
+drop column birthdate
+
+
+alter table Faculty
+drop constraint UQ__faculty__6FAE07821F9BAA2C
+
+---create/alter/drop--- undo is not possible---auto commit
+alter table Faculty
+add constraint mobile_unique unique (Mobile)
+
+
+drop table StudentDummy
+
+
+select * from StudentDuplicates
+
+truncate table StudentDuplicates
+
+
+truncate-----undo---rollback
+delete----can undo---rollback is possible
+
+create table products
+(prodid int,
+prodname varchar(10),
+price int)
+
+select * from products
+
+insert into products values(1,'GoodShirt',1000),
+(2,'CShirt',2000),
+(3,'TShirt',3000),
+(4,'FullShirt',4000),
+(5,'Suit',10000)
+
+
+
+create table Colors
+(colorid int,
+colorname varchar(10))
+
+select * from  Colors cross join products
+order by prodid
+
+insert into Colors values(1,'Red'),(2,'Blue'),(3,'Green')
+
+
+
+
+
+create table dept
+(dno int primary key,
+dname varchar(20),
+loc varchar(20))
+
+insert into dept values(10,'Sales','Mumbai'),
+(20,'Purchase','Chennai'),
+(30,'Development','Nagpur'),
+(40,'Accounts','Bangalore')
+
+
+create table emp
+(empno int primary key,
+ename varchar(20),
+deptno int foreign key references dept(dno))
+
+insert into emp values(1,'Sumit','10'),
+(2,'Amit','20'),
+(3,'Sunita','10'),
+(4,'Ankita','30'),
+(5,'Archana','20')
+
+insert into emp values(6,'Purtita',null)
+select * from dept
+10	Sales	Mumbai
+20	Purchase	Chennai
+30	Development	Nagpur
+40	Accounts	Bangalore
+
+select * from emp
+1	Sumit	10
+2	Amit	20
+3	Sunita	10
+4	Ankita	30
+5	Archana	20
+
+select dno from dept
+union
+select deptno from emp
+10
+20
+30
+40
+
+select dno from dept
+union all
+select deptno from emp
+10
+20
+30
+40
+10
+20
+10
+30
+20
+
+select dno from dept
+intersect
+select deptno from emp
+10
+20
+30
+
+select dno from dept
+except
+select deptno from emp
+40
+
+
+select deptno from emp 
+except
+select dno from dept
+
+---------------------------------------------
+
+select dno,dname,loc,empno,ename,deptno from dept left outer join emp  on dept.dno=emp.deptno
+10	Sales	Mumbai	1	Sumit	10
+10	Sales	Mumbai	3	Sunita	10
+20	Purchase	Chennai	2	Amit	20
+20	Purchase	Chennai	5	Archana	20
+30	Development	Nagpur	4	Ankita	30
+40	Accounts	Bangalore	NULL	NULL	NULL
+
+select dno,dname,loc,empno,ename,deptno from emp right outer join dept  on dept.dno=emp.deptno
+10	Sales	Mumbai	1	Sumit	10
+10	Sales	Mumbai	3	Sunita	10
+20	Purchase	Chennai	2	Amit	20
+20	Purchase	Chennai	5	Archana	20
+30	Development	Nagpur	4	Ankita	30
+40	Accounts	Bangalore	NULL	NULL	NULL
+
+
+
+select dno,dname,loc,empno,ename,deptno from emp left outer join dept  on dept.dno=emp.deptno
+10	Sales	Mumbai	1	Sumit	10
+20	Purchase	Chennai	2	Amit	20
+10	Sales	Mumbai	3	Sunita	10
+30	Development	Nagpur	4	Ankita	30
+20	Purchase	Chennai	5	Archana	20
+NULL	NULL	NULL	6	Purtita	NULL
+
+
+select dno,dname,loc,empno,ename,deptno from dept right outer join emp  on dept.dno=emp.deptno
+10	Sales	Mumbai	1	Sumit	10
+20	Purchase	Chennai	2	Amit	20
+10	Sales	Mumbai	3	Sunita	10
+30	Development	Nagpur	4	Ankita	30
+20	Purchase	Chennai	5	Archana	20
+NULL	NULL	NULL	6	Purtita	NULL
+
+select dno,dname,loc,empno,ename,deptno from dept full outer join emp  on dept.dno=emp.deptno
+10	Sales	Mumbai	1	Sumit	10
+10	Sales	Mumbai	3	Sunita	10
+20	Purchase	Chennai	2	Amit	20
+20	Purchase	Chennai	5	Archana	20
+30	Development	Nagpur	4	Ankita	30
+40	Accounts	Bangalore	NULL	NULL	NULL
+NULL	NULL	NULL	6	Purtita	NULL
