@@ -1,0 +1,75 @@
+use sulakshanaDB
+db
+db.Employee.insert({"empno":"101",
+"ename":"Gaurav",
+  "salary":"30000",
+  "deptno":"10"})
+db.Employee.insert({"empid":"101",
+"empname":"Zeeshan",
+  "salary":"30000",
+  "projectname":"ERP",
+    "qualification":"BTECH"
+  })
+db.Employee.find()
+db.Employee.find().pretty()
+db.Employee.aggregate([{$match:{}}])
+db.Employee.insertOne({"empid":"102",
+"empname":"Priya",
+  "salary":"40000",
+  "projectname":"SAP",
+    "qualification":"BTECH"
+  })
+  
+  db.Employee.aggregate([{$match:{"empid":"102"}}])
+
+db.Employee.insertMany(
+  [
+    {"empid":"104","ename":"Sonal"},
+    {"empid":"105","ename":"Monal"},
+    {"empid":"106","ename":"Komal"}
+    ]
+    )  
+db.Employee.insertOne({"empid":"104","ename":"Sonal U"
+  })
+    
+    
+    
+    
+    db.Employee.updateOne(
+      {"empname":"Priya"},
+      {$set: {"projectname":"CAP"}}
+      )
+      
+      db.Employee.updateMany(
+      {"salary":"30000"},
+      {$set: {"salary":"50000"}}
+      )
+      
+      db.Employee.deleteOne({"empname":"Priya"})
+      
+      db.Employee.deleteMany({"salary":"50000"})
+  
+   db.Employee.findOne({"empid":"101"}) 
+db.Employee.findOne({"empid":"101"}) 
+db.Employee.find().pretty()
+
+
+db.Employee.find({"empid":"104"})
+
+db.Employee.drop()
+
+db.Dept.insert({
+  "deptno":"10",
+  "dname":"Sales",
+  "Loc":"Pune",
+  empDetails:[
+    {"empid":"1","ename":"A"},
+    {"empid":"2","ename":"B"},
+    ]
+})
+
+db.Dept.find()
+
+--to find atleast one match of empid 1 in the empDetails array
+
+db.Dept.find({"empDetails":{$elemMatch:{"empid":"1"})
